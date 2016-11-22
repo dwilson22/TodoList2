@@ -1,59 +1,58 @@
 package ca.danieljameswilson.todolist;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.danieljameswilson.todolist.domain.DatabaseHelper;
+
 public class ToDoListManager {
 
-    private static final String APP_PREFERENCES = "todoapp";
+
     private static final String TODO_ITEMS_KEY = "itemslist";
-    private List<ToDoItem> list;
-    private SharedPreferences data;
+    private DatabaseHelper dbHealper;
 
-    public ToDoListManager(Context context){
-        data = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        String json = data.getString(TODO_ITEMS_KEY, null);
-
-        if(json == null){
-            list = new ArrayList<>();
-        }else {
-
-            Type type = new TypeToken<List<ToDoItem>>() {
-            }.getType();
-            list = new Gson().fromJson(json, type);
-        }
-
+    public ToDoListManager(Context context) {
+        dbHealper = DatabaseHelper.getInstance(context);
     }
 
-    public List<ToDoItem> getList(){
+    public List<ToDoItem> getList() {
+        SQLiteDatabase db = dbHealper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.ITEM_TABLE, null);
+        List<ToDoItem> list = new ArrayList<>();
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                ToDoItem item = new ToDoItem(
+                        cursor.getString(cursor.getColumnIndex("description")),
+                        cursor.getInt(cursor.getColumnIndex("completed")) != 0);
+                list.add(item);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+
         return list;
     }
 
-    public void add(ToDoItem item){
+    public void add(ToDoItem item) {
 
-        list.add(item);
-        saveList();
+
+        ContentValues newItem = new ContentValues();
+        newItem.put("description", item.getDescription());
+        newItem.put("completed", item.isComplete());
+
+        SQLiteDatabase db = dbHealper.getWritableDatabase();
+        db.insert(DatabaseHelper.ITEM_TABLE, null, newItem);
     }
 
-    public void removeItem(ToDoItem item){
-        list.remove(item);
-      //  Log.d("deleting", item.getDescription().toString());
-        saveList();
-    }
-
-    public void saveList(){
-        SharedPreferences.Editor edit = data.edit();
-        edit.clear();
-        String json = new Gson().toJson(list);
-        edit.putString(TODO_ITEMS_KEY, json);
-        edit.apply();
+    public void removeItem(ToDoItem item) {
+        //  list.remove(item);
+        //  Log.d("deleting", item.getDescription().toString());
+        //  saveList();
     }
 }

@@ -21,7 +21,9 @@ import java.util.*;
 
 
 public class MainActivity extends AppCompatActivity {
-private ToDoListManager listManager;
+    private ToDoListManager listManager;
+    private ToDoItemAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +32,7 @@ private ToDoListManager listManager;
         ListView Todo = (ListView) findViewById(R.id.todo_list);
         listManager = new ToDoListManager(getApplicationContext());
 
-        ToDoItemAdapter adapter = new ToDoItemAdapter(this, listManager.getList());
+        adapter = new ToDoItemAdapter(this, listManager.getList());
 
         Todo.setAdapter(adapter);
 
@@ -48,7 +50,7 @@ private ToDoListManager listManager;
     @Override
     protected void onPause(){
         super.onPause();
-        listManager.saveList();
+
 
     }
 
@@ -64,6 +66,7 @@ private ToDoListManager listManager;
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 listManager.add(new ToDoItem(input.getText().toString(), false));
+                adapter.swapList(listManager.getList());
             }
         });
 
@@ -117,6 +120,16 @@ private ToDoListManager listManager;
            // notifyDataSetChanged();
         }
 
+        public void swapList(List<ToDoItem> items){
+            this.items = items;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount(){
+            return items.size();
+        }
+
         @Override
         public View getView(int position, View  convertView, ViewGroup parent){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -145,7 +158,7 @@ private ToDoListManager listManager;
                     ToDoItem item = (ToDoItem) v.getTag();
                     item.toggleComplete();
                     notifyDataSetChanged();
-                    listManager.saveList();
+
                 }
             });
 
