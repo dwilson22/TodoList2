@@ -113,11 +113,12 @@ public class MainActivity extends AppCompatActivity {
     protected class ToDoItemAdapter extends ArrayAdapter<ToDoItem>{
         private Context context;
         private List<ToDoItem> items;
+        private LayoutInflater inflater;
         public ToDoItemAdapter(Context context, List<ToDoItem> items){
             super(context, -1, items);
             this.context = context;
             this.items = items;
-           // notifyDataSetChanged();
+            this.inflater = LayoutInflater.from(context);
         }
 
         public void swapList(List<ToDoItem> items){
@@ -132,21 +133,28 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View  convertView, ViewGroup parent){
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.to_do_item_layout, parent, false);
+            final ItemViewHolder holder;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.to_do_item_layout, parent, false);
+                holder = new ItemViewHolder();
+                holder.itemDescription = (TextView) convertView.findViewById(R.id.item);
+                holder.itemCompleted = (CheckBox) convertView.findViewById(R.id.checkbox);
+                convertView.setTag(holder);
+            }else{
+                holder = (ItemViewHolder) convertView.getTag();
+            }
 
-            TextView textView = (TextView) convertView.findViewById(R.id.item);
-            CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox);
             ImageButton removeItem = (ImageButton) convertView.findViewById(R.id.remove_item);
-            textView.setText(items.get(position).getDescription());
-            checkBox.setChecked(items.get(position).isComplete());
-            convertView.setTag(items.get(position));
+            holder.itemDescription.setText(items.get(position).getDescription());
+            holder.itemCompleted.setChecked(items.get(position).isComplete());
+
+            holder.itemCompleted.setTag(items.get(position));
             removeItem.setTag(items.get(position));
 
             removeItem.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    ToDoItem item = (ToDoItem) v.getTag();
+                    ToDoItem item = (ToDoItem) holder.itemCompleted.getTag();
                     onRemoveButtonClick(item);
                     notifyDataSetChanged();
                 }
@@ -165,5 +173,9 @@ public class MainActivity extends AppCompatActivity {
 
             return convertView;
         }
+    }
+    public static class ItemViewHolder{
+        public TextView itemDescription;
+        public CheckBox itemCompleted;
     }
 }
