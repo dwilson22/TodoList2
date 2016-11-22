@@ -7,10 +7,16 @@ package ca.danieljameswilson.todolist;
 public class ToDoItem {
     private String description;
     private boolean finished;
+    private long id;
 
     public ToDoItem(String d, boolean b){
+        this(d,b,-1);
+    }
+
+    public ToDoItem(String d, boolean b, long id){
         this.description = d;
         this.finished = b;
+        this.id = id;
     }
 
     public String getDescription (){
@@ -30,4 +36,7 @@ public class ToDoItem {
         return getDescription();
     }
 
+    public long getId() {
+        return id;
+    }
 }

@@ -29,7 +29,8 @@ public class ToDoListManager {
             while (!cursor.isAfterLast()) {
                 ToDoItem item = new ToDoItem(
                         cursor.getString(cursor.getColumnIndex("description")),
-                        cursor.getInt(cursor.getColumnIndex("completed")) != 0);
+                        cursor.getInt(cursor.getColumnIndex("completed")) != 0,
+                        cursor.getLong(cursor.getColumnIndex("_id")));
                 list.add(item);
                 cursor.moveToNext();
             }
@@ -51,8 +52,19 @@ public class ToDoListManager {
     }
 
     public void removeItem(ToDoItem item) {
-        //  list.remove(item);
-        //  Log.d("deleting", item.getDescription().toString());
-        //  saveList();
+        SQLiteDatabase db = dbHealper.getWritableDatabase();
+        String[] args = new String[]{String.valueOf(item.getId())};
+        db.delete(DatabaseHelper.ITEM_TABLE, "_id=?",args);
+    }
+
+    public void updateItem(ToDoItem item){
+        ContentValues newItem = new ContentValues();
+        newItem.put("description",item.getDescription());
+        newItem.put("completed",item.isComplete());
+
+        SQLiteDatabase db = dbHealper.getWritableDatabase();
+        String[] args = new String[]{String.valueOf(item.getId())};
+        db.update(DatabaseHelper.ITEM_TABLE, newItem, "_id=?", args);
+
     }
 }

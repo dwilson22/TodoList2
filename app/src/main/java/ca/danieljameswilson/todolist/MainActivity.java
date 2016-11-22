@@ -50,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-
-
     }
 
     private void onAddButtonClick(){
@@ -96,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 listManager.removeItem(item);
+                adapter.swapList(listManager.getList());
             }
         });
 
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             removeItem.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    ToDoItem item = (ToDoItem) holder.itemCompleted.getTag();
+                    ToDoItem item = (ToDoItem) v.getTag();
                     onRemoveButtonClick(item);
                     notifyDataSetChanged();
                 }
@@ -163,10 +162,19 @@ public class MainActivity extends AppCompatActivity {
             convertView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    ToDoItem item = (ToDoItem) v.getTag();
+                    ToDoItem item = (ToDoItem) holder.itemCompleted.getTag();
                     item.toggleComplete();
+                    listManager.updateItem(item);
                     notifyDataSetChanged();
-
+                }
+            });
+            holder.itemCompleted.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    ToDoItem item = (ToDoItem) holder.itemCompleted.getTag();
+                    item.toggleComplete();
+                    listManager.updateItem(item);
+                    notifyDataSetChanged();
                 }
             });
 
