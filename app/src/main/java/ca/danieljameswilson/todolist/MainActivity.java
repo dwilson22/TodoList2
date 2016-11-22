@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 holder = new ItemViewHolder();
                 holder.itemDescription = (TextView) convertView.findViewById(R.id.item);
                 holder.itemCompleted = (CheckBox) convertView.findViewById(R.id.checkbox);
+                holder.timeStamp = (TextView) convertView.findViewById(R.id.time_stamp);
                 convertView.setTag(holder);
             }else{
                 holder = (ItemViewHolder) convertView.getTag();
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             ImageButton removeItem = (ImageButton) convertView.findViewById(R.id.remove_item);
             holder.itemDescription.setText(items.get(position).getDescription());
             holder.itemCompleted.setChecked(items.get(position).isComplete());
-
+            holder.timeStamp.setText(items.get(position).getTimeStamp());
             holder.itemCompleted.setTag(items.get(position));
             removeItem.setTag(items.get(position));
 
@@ -185,5 +186,6 @@ public class MainActivity extends AppCompatActivity {
     public static class ItemViewHolder{
         public TextView itemDescription;
         public CheckBox itemCompleted;
+        public TextView timeStamp;
     }
 }
